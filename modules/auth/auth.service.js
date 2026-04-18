@@ -99,10 +99,16 @@ export const verifyEmailService = async(email,otp)=>{
 export const generateNewAccessTokenService = async(incomingRefreshToken)=>{
     if(!incomingRefreshToken)
         throw new AppError("please login again",401);
+    let decoded;
+    try{
+        decoded = jwt.verify(incomingRefreshToken,process.env.JWT_RT_SECRET);
+    }catch(err){
+        throw new AppError("Refresh token is invalid or expired",401);
+    }
     const hashIncomingRefreshToken = await crypto.createHash("sha256").update(incomingRefreshToken).digest("hex");
-    const user = await User.findOne({refreshTokens:hashIncomingRefreshToken}).select("+refreshTokens");
+    const user = await User.findOne({_id:decoded.id,refreshTokens:hashIncomingRefreshToken}).select("+refreshTokens");
     if(!user)
-        throw new AppError("User not found",404);
+        throw new AppError("User not found",404);    
     if(!user.isVerifed)
         throw new AppError("Please verify your email",401);
     const accessToken = generateAccessToken(user);
