@@ -1,0 +1,24 @@
+# الحماية والخصوصية (أهم حاجة)
+.env
+
+# الملفات التقيلة (المكتبات)
+node_modules/
+
+# ملفات الـ Debug واللوجز
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ملفات أنظمة التشغيل (عشان الكود يبقى نظيف)
+.DS_Store
+Thumbs.db
+
+# ملفات الـ IDE (لو شغال بـ VS Code أو WebStorm)
+.vscode/
+.idea/
+
+# ملفات الـ Build (لو موجودة)
+dist/
+build/
+.vercel
