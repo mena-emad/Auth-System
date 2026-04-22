@@ -11,7 +11,12 @@ const protect = catchAsync(async(req,res,next)=>{
     }
     if(!token)
         return next(new AppError("Unauthorized",401));
-    const decoded = jwt.verify(token,process.env.JWT_AT_SECRET);
+    let decoded;
+    try{
+        decoded = jwt.verify(token,process.env.JWT_AT_SECRET);
+    }catch(err){
+        return next(new AppError("Unauthorized",401));
+    }
     const currentUser = await User.findById(decoded.id);
     if(!currentUser)
         return next(new AppError("Unauthorized",401));
