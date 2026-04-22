@@ -4,7 +4,7 @@ info:
   version: 1.0.1
   description: |
     ### Advanced Authentication System
-    This documentation covers all user authentication processes for the MedEX platform.
+    This documentation covers all user authentication processes .
     
     **Technical Specifications:**
     * **State Management:** Access and Refresh Tokens are delivered via **HttpOnly, Secure Cookies**.
