@@ -18,7 +18,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local Development Server
-  - url: https://auth-system.vercel.app
+  - url: https://auth-system-mena.vercel.app/
     description: Production Server
 
 components:
