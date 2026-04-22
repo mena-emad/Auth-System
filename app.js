@@ -14,7 +14,16 @@ const __dirname = path.dirname(__filename)
 const swaggerDoc = YAML.load(__dirname + "/swagger.yaml");
 dotenv.config();
 const app = express();
-app.use("/api-docs",swaggeUi.serve,swaggeUi.setup(swaggerDoc));
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+const JS_URLS = [
+  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui-bundle.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui-standalone-preset.js"
+];
+app.use("/api-docs",swaggeUi.serve,swaggeUi.setup(swaggerDoc,{
+  customCss:'.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
+  customCssUrl: CSS_URL,
+  customJs: JS_URLS
+}));
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
