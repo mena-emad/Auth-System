@@ -1,0 +1,270 @@
+openapi: 3.0.0
+info:
+  title: Authentication System API
+  version: 1.0.1
+  description: |
+    ### Advanced Authentication System
+    This documentation covers all user authentication processes for the MedEX platform.
+    
+    **Technical Specifications:**
+    * **State Management:** Access and Refresh Tokens are delivered via **HttpOnly, Secure Cookies**.
+    * **Token Lifespan:** Access Token (10 mins), Refresh Token (7 days).
+    * **Security:** Rate limiting is enforced on OTP requests (30-second cooldown).
+    * **Hybrid Auth:** Supports both `Authorization: Bearer <token>` headers and `Cookie: accessToken=<token>`.
+  contact:
+    name: Mena Emad
+    url: https://menaemad.netlify.app
+
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+  - url: https://auth-system.vercel.app
+    description: Production Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Enter your JWT Access Token here for manual testing of protected routes."
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+      description: "Automatically handled by the browser after login/verify."
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "65f1a2b3c4d5e6f7a8b9c0d1"
+        userName:
+          type: string
+          minLength: 3
+          example: "mena_emad"
+        email:
+          type: string
+          format: email
+          example: "mena@example.com"
+        role:
+          type: string
+          enum: [user, admin]
+          example: "user"
+        isVerifed:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ErrorModel:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Detailed error message goes here"
+        stack:
+          type: string
+          description: "Available only in development mode"
+
+paths:
+  /signup:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: Creates a user account and automatically triggers an OTP email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userName, email, password]
+              properties:
+                userName:
+                  type: string
+                  minLength: 3
+                  example: "menaemad"
+                email:
+                  type: string
+                  format: email
+                  example: "mena@example.com"
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: "Mena@123456"
+                confirmPassword:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: "Mena@123456"
+                role:
+                  type: string
+                  enum: [user, admin]
+                  default: user
+      responses:
+        201:
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: "User created successfully. Check your email to verify account." }
+                  user: { $ref: '#/components/schemas/User' }
+        400:
+          description: User already exists or validation failed.
+        401:
+          description: Unauthorized role assignment.
+
+  /login:
+    post:
+      tags: [Authentication]
+      summary: User Login
+      description: Authenticates user and sets Access/Refresh tokens in HttpOnly cookies.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: "mena@example.com" }
+                password: { type: string, example: "Mena@123456" }
+      responses:
+        200:
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isVerifed: { type: boolean, example: true }
+                  user: { $ref: '#/components/schemas/User' }
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+        401:
+          description: Invalid credentials or account not verified.
+        404:
+          description: User not found.
+
+  /verify-email:
+    post:
+      tags: [Authentication]
+      summary: Verify account via OTP
+      description: Verifies the email using the 6-digit code and activates the account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, otp]
+              properties:
+                email: { type: string, example: "mena@example.com" }
+                otp: { type: string, example: "123456" }
+      responses:
+        200:
+          description: Account verified successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: "Account verified successfully." }
+                  user: { $ref: '#/components/schemas/User' }
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+        404:
+          description: User not found.
+        400:
+          description: Invalid or expired OTP.
+
+  /generate-otp:
+    post:
+      tags: [Authentication]
+      summary: Request a new OTP
+      description: Resends a verification code to the user's email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, example: "mena@example.com" }
+      responses:
+        200:
+          description: OTP sent successfully.
+        429:
+          description: Cooldown active. Wait 30 seconds between requests.
+
+  /generatenewaccesstoken:
+    post:
+      tags: [Authentication]
+      summary: Refresh Access Token
+      description: Uses the Refresh Token (from cookies or header) to generate a new Access Token.
+      responses:
+        200:
+          description: Tokens rotated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: "New access token generated successfully" }
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+        404:
+          description: User not found.
+        401:
+          description: Refresh token invalid or expired.
+
+  /me:
+    get:
+      tags: [Authentication]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        200:
+          description: Returns profile data of the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  user: { $ref: '#/components/schemas/User' }
+        401:
+          description: Unauthorized. Missing or expired token.
+
+  /logout:
+    post:
+      tags: [Authentication]
+      summary: User Logout
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      description: Clears cookies and removes the refresh token session from the database.
+      responses:
+        200:
+          description: Logged out successfully.
+        401:
+          description: Unauthorized. Missing or expired token.
