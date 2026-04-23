@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync.js";
 import AppError from "../../utils/AppError.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import sendEmail from "../../utils/sendEmail.js";
 import { generateAccessToken, generateRefreshToken } from "../../utils/generateTokens.js";
 
@@ -97,12 +98,15 @@ export const verifyEmailService = async(email,otp)=>{
 }
 
 export const generateNewAccessTokenService = async(incomingRefreshToken)=>{
+    console.log(incomingRefreshToken);
     if(!incomingRefreshToken)
         throw new AppError("please login again",401);
     let decoded;
     try{
         decoded = jwt.verify(incomingRefreshToken,process.env.JWT_RT_SECRET);
+        console.log(decoded)
     }catch(err){
+        console.log(decoded);
         throw new AppError("Refresh token is invalid or expired",401);
     }
     const hashIncomingRefreshToken = await crypto.createHash("sha256").update(incomingRefreshToken).digest("hex");
