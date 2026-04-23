@@ -46,11 +46,12 @@ export const login = catchAsync(async(req,res,next)=>{
 })
 
 export const logout = catchAsync(async(req,res,next)=>{
-    const result = await logoutService(req.user._id,req.headers.authorization?.split(" ")[1]||req.cookies.refreshToken);
+    const result = await logoutService(req.user._id,req.cookies.refreshToken);
+    res.removeHeader("Authorization");
     res.cookie("accessToken",null,{httpOnly:true,secure:true,sameSite:"none",maxAge:0});
     res.cookie("refreshToken",null,{httpOnly:true,secure:true,sameSite:"none",maxAge:0});
     res.status(200).json({success:true,message:"Logout successfully",result});
-})
+}) 
 
 export const generateNewAccessToken = catchAsync(async(req,res,next)=>{
     const result = await generateNewAccessTokenService(req.cookies.refreshToken);
