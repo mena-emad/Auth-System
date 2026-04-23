@@ -104,9 +104,7 @@ export const generateNewAccessTokenService = async(incomingRefreshToken)=>{
     let decoded;
     try{
         decoded = jwt.verify(incomingRefreshToken,process.env.JWT_RT_SECRET);
-        console.log(decoded)
     }catch(err){
-        console.log(decoded);
         throw new AppError("Refresh token is invalid or expired",401);
     }
     const hashIncomingRefreshToken = await crypto.createHash("sha256").update(incomingRefreshToken).digest("hex");
