@@ -30,7 +30,6 @@ app.use("/api-docs",swaggeUi.serve,swaggeUi.setup(swaggerDoc,{
   customCssUrl: CSS_URL,
   customJs: JS_URLS
 }));
-app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 //routes
