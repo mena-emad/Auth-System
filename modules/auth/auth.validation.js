@@ -21,6 +21,11 @@ export const signupSchema = Joi.object({
         "string.empty":"Confirm password is required",
         "any.only":"Passwords do not match",
         "any.required":"Confirm password is required"
+    }),
+    role:Joi.string().valid("user","admin").required().messages({
+        "string.empty":"Role is required",
+        "any.only":"Invalid role",
+        "any.required":"Role is required"
     })
 })
 

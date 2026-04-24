@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync.js";
 import AppError from "../../utils/AppError.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import sendEmail from "../../utils/sendEmail.js";
 import { generateAccessToken, generateRefreshToken } from "../../utils/generateTokens.js";
 
@@ -97,6 +98,7 @@ export const verifyEmailService = async(email,otp)=>{
 }
 
 export const generateNewAccessTokenService = async(incomingRefreshToken)=>{
+    console.log(incomingRefreshToken);
     if(!incomingRefreshToken)
         throw new AppError("please login again",401);
     let decoded;
