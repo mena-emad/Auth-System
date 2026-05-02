@@ -15,7 +15,7 @@ const swaggerDoc = YAML.load(__dirname + "/swagger.yaml");
 dotenv.config();
 const app = express();
 app.use(cors({
-  origin:["http://localhost:5173","https://auth-ment-system.netlify.app"],
+  origin:["http://localhost:5173","https://auth-mena-system.netlify.app"],
   credentials:true,
   methods:["GET","POST","PUT","DELETE"],
   allowedHeaders:["Content-Type","Authorization"]
