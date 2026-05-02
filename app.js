@@ -15,7 +15,7 @@ const swaggerDoc = YAML.load(__dirname + "/swagger.yaml");
 dotenv.config();
 const app = express();
 app.use(cors({
-  origin:["http://localhost:5173","'https://thunderous-bublanina-5a02f2.netlify.app'"],
+  origin:["http://localhost:5173","https://thunderous-bublanina-5a02f2.netlify.app"],
   credentials:true,
   methods:["GET","POST","PUT","DELETE"],
   allowedHeaders:["Content-Type","Authorization"]
