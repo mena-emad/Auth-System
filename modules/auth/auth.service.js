@@ -98,7 +98,6 @@ export const verifyEmailService = async(email,otp)=>{
 }
 
 export const generateNewAccessTokenService = async(incomingRefreshToken)=>{
-    console.log(incomingRefreshToken);
     if(!incomingRefreshToken)
         throw new AppError("please login again",401);
     let decoded;
